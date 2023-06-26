@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Restaurang Pad Thai - Trelleborg</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <ul class="list-group" id="list"></ul>
+
+      </div>
+    </div>
+    <script>
+      const serverUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQmPBDaJy5uJp2ehsiY4DQcAvkQsmF1rlKE8sPUegFWrGyU2d4mHBpCtKWnKfZpcs_BPHZv5GfQxdL7/pub?output=tsv';
+      
+      let arr = [];
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", serverUrl);
+      xhr.onload = function () {
+        const rows = xhr.responseText.split('\r');
+        for (let i = 0; i < rows.length; i++) {
+          const cols = rows[i].split('\t');
+          for (let j = 0; j < cols.length; j++) {
+            cols[j] = cols[j].trim();
+          }
+          arr.push(cols);
+        }
+        render(arr);
+      };
+      xhr.onerror = function () {
+        console.log(xhr.statusText)
+      };
+      xhr.send();
+      function render(data) {
+        console.log(data);
+        for (let h = 1; h < data.length; h++) {
+          let name = '';
+          let desc = '';
+          let price = '';
+          for (let i = 0; i < data[0].length; i++) {
+            let title = data[0][i];
+            if (title === 'Maträtt namn') {
+              name = data[h][i];
+            } else if (title === 'Maträtt beskrivning') {
+              desc = data[h][i];
+            } else if (title === 'Maträtt pris') {
+              price = data[h][i];
+            }
+          }
+          var li = document.createElement('li');
+          var h2 = document.createElement('span');
+          h2.textContent = name;
+          h2.className = 'd-block h2'
+          var p = document.createElement('span');
+          p.textContent = desc;
+          var pr = document.createElement('span');
+          pr.textContent = price + ' kr';
+          pr.className = 'badge bg-success mx-1';
+          pr.style.fontSize = '.9rem';
+          li.appendChild(h2);
+          li.appendChild(p);
+          li.appendChild(pr);
+          li.className = 'list-group-item';
+          document.getElementById('list').appendChild(li);
+        }
+      }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+
+  </body>
+</html>
