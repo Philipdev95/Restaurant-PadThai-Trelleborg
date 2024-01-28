@@ -9,66 +9,153 @@
   <body>
     <div class="container">
       <div class="row">
-        <ul class="list-group" id="list"></ul>
+        <select class="col form-select" id="list"></select>
 
       </div>
     </div>
     <script>
-      const serverUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQmPBDaJy5uJp2ehsiY4DQcAvkQsmF1rlKE8sPUegFWrGyU2d4mHBpCtKWnKfZpcs_BPHZv5GfQxdL7/pub?output=tsv';
-      
-      let arr = [];
-      var xhr = new XMLHttpRequest();
-      xhr.open("GET", serverUrl);
-      xhr.onload = function () {
-        const rows = xhr.responseText.split('\r');
-        for (let i = 0; i < rows.length; i++) {
-          const cols = rows[i].split('\t');
-          for (let j = 0; j < cols.length; j++) {
-            cols[j] = cols[j].trim();
-          }
-          arr.push(cols);
+      const extraTextURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQmPBDaJy5uJp2ehsiY4DQcAvkQsmF1rlKE8sPUegFWrGyU2d4mHBpCtKWnKfZpcs_BPHZv5GfQxdL7/pub?gid=462419764&single=true&output=tsv"
+      const proteinOchPrisURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQmPBDaJy5uJp2ehsiY4DQcAvkQsmF1rlKE8sPUegFWrGyU2d4mHBpCtKWnKfZpcs_BPHZv5GfQxdL7/pub?gid=783344903&single=true&output=tsv';
+      const menyUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQmPBDaJy5uJp2ehsiY4DQcAvkQsmF1rlKE8sPUegFWrGyU2d4mHBpCtKWnKfZpcs_BPHZv5GfQxdL7/pub?output=tsv';
+      const fullDocumentURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQmPBDaJy5uJp2ehsiY4DQcAvkQsmF1rlKE8sPUegFWrGyU2d4mHBpCtKWnKfZpcs_BPHZv5GfQxdL7/pub?output=tsv";
+      const gustavdocs = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXp1KqYmBSbxKZmzlz_GcuMwSIt5g1moaefSU_LNUEMI1LVn0zkGdNHU5XLfTkeg9uBJraxDZcJg1n/pub?gid=860384594&single=true&output=tsv"
+      // getData(extraTextURL, 'extra');
+      // getData(menyUrl, 'meny');
+      // getSheetData("https://docs.google.com/spreadsheets/d/e/2PACX-1vTXp1KqYmBSbxKZmzlz_GcuMwSIt5g1moaefSU_LNUEMI1LVn0zkGdNHU5XLfTkeg9uBJraxDZcJg1n/pub?gid=860384594&single=true&output=tsv")
+      function getSheetData(url) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url);
+        xhr.onload = function () {
+          console.log(xhr.responseText.split('\r'));
         }
-        render(arr);
-      };
-      xhr.onerror = function () {
-        console.log(xhr.statusText)
-      };
-      xhr.send();
-      function render(data) {
-        console.log(data);
+        xhr.onerror = function () {
+          console.log(xhr.statusText)
+        };
+        xhr.send();
+      }
+      getData(gustavdocs, 'meny');
+      function getData(url, type) {
+          let arr = [];
+          var xhr = new XMLHttpRequest();
+          xhr.open("GET", url);
+          xhr.onload = function () {
+            const rows = xhr.responseText.split('\r');
+            for (let i = 0; i < rows.length; i++) {
+              const cols = rows[i].split('\t');
+              for (let j = 0; j < cols.length; j++) {
+                cols[j] = cols[j].trim();
+              }
+              arr.push(cols);
+            }
+            console.log(arr)
+            if (type === 'meny') {
+              renderMenu(arr);
+            } else if (type === 'protpris') {
+              renderProteinPrice(arr);
+            }
+          };
+          xhr.onerror = function () {
+            console.log(xhr.statusText)
+          };
+          xhr.send();
+      }
+
+      function renderProteinPrice(data) {
         for (let h = 1; h < data.length; h++) {
+
           let name = '';
-          let desc = '';
           let price = '';
+          let icon = '';
           for (let i = 0; i < data[0].length; i++) {
             let title = data[0][i];
-            if (title === 'Maträtt namn') {
+            		
+            if (title === 'Protein') {
               name = data[h][i];
-            } else if (title === 'Maträtt beskrivning') {
-              desc = data[h][i];
-            } else if (title === 'Maträtt pris') {
+            } else if (title === 'Pris') {
               price = data[h][i];
+            } else if (title === 'Ikon') {
+              icon = data[h][i];
+            }
+
+            var tag = document.createElement('i');
+            tag.className = icon;
+            let prisalternativ = document.getElementsByClassName('prisalternativ');
+            for (let j = 0; j < prisalternativ.length; j++) {
+              prisalternativ[j].appendChild(tag);
             }
           }
-          var li = document.createElement('li');
-          var h2 = document.createElement('span');
-          h2.textContent = name;
-          h2.className = 'd-block h2'
-          var p = document.createElement('span');
-          p.textContent = desc;
-          var pr = document.createElement('span');
-          pr.textContent = price + ' kr';
-          pr.className = 'badge bg-success mx-1';
-          pr.style.fontSize = '.9rem';
-          li.appendChild(h2);
-          li.appendChild(p);
-          li.appendChild(pr);
-          li.className = 'list-group-item';
-          document.getElementById('list').appendChild(li);
+
         }
       }
+     
+      function renderMenu(data) {
+        return new Promise((resolve) => {
+          console.log(data);
+          for (let h = 1; h < data.length; h++) {
+            let name = '';
+            let desc = '';
+            let price = '';
+            for (let i = 0; i < data[0].length; i++) {
+              let title = data[0][i];
+              if (title === 'Recipe') {
+                name = data[h][i];
+              } else if (title === 'Ingredients') {
+                desc = data[h][i];
+              } else if (title === 'Qty') {
+                price = data[h][i];
+              }
+            }
+            var select = document.createElement('select')
+            var option = document.createElement('option')
+            var li = document.createElement('option');
+            var h2 = document.createElement('span');
+            h2.textContent = name;
+            h2.className = 'd-block h2'
+            var p = document.createElement('span');
+            p.textContent = desc;
+            var pr = document.createElement('span');
+            if (price === 'alternativ') {
+              pr.textContent = '';
+              pr.className = 'badge bg-success mx-1 alternativ';
+            } else {
+              pr.textContent = price + ' kr';
+              pr.className = 'badge bg-success mx-1 alternativ';
+            }
+            pr.style.fontSize = '.9rem';
+            if (name) {
+              li.appendChild(h2);
+            }
+            if (desc) {
+              li.appendChild(p);
+            }
+            if (price) {
+              li.appendChild(pr);
+            }
+            li.className = 'list-group-item';
+            document.getElementById('list').appendChild(li);
+          }
+          resolve();
+        })
+      }
+      
+      function firstFunction() {
+        return new Promise((resolve) => {
+          console.log("First function running...");
+          getData(gustavdocs, 'meny').then(resolve);
+        });
+      }
+
+      function secondFunction() {
+        console.log("Second function running...");
+        getData(proteinOchPrisURL, 'protpris');
+      }
+
+      // Function chaining using promises
+      firstFunction().then(secondFunction);
+
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/426f7fee48.js" crossorigin="anonymous"></script>
 
   </body>
 </html>
